@@ -1,13 +1,8 @@
 package com.test.tunnelexampleandroid
 
-import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
-import android.net.VpnManager
 import android.net.VpnService
 import android.os.Bundle
-import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
@@ -28,23 +23,23 @@ class MainActivity : ComponentActivity() {
             startForResult.launch(intent)
         }
         startService()
-
     }
 
     private fun startService() {
-        val intent = Intent(this, MyVpnService::class.java)
-        intent.putExtra("serverAddress", "163.172.61.111")
+        val intent = Intent(this, TunnelService::class.java)
+        intent.putExtra("serverAddress", ipAddress)
+        intent.action = if (isServiceWorking.value == false) TunnelService.ACTION_START else TunnelService.ACTION_STOP
         startService(intent)
     }
 
     private fun onVpnServiceWorkingChanger() {
-        MyVpnService.isWorking
+        isServiceWorking.postValue(TunnelService.isWorking)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        isServiceWorking.value = MyVpnService.isWorking
-        MyVpnService.onIsWorkingChanged = { onVpnServiceWorkingChanger() }
+        isServiceWorking.value = TunnelService.isWorking
+        TunnelService.onIsWorkingChanged = { onVpnServiceWorkingChanger() }
 
         startForResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -54,9 +49,10 @@ class MainActivity : ComponentActivity() {
             }
         setContent {
             TunnelExampleAndroidTheme {
-                MainView {
-                    onClick(it)
-                }
+                MainView(
+                    onClickStart = { onClick(it) },
+                    isServiceWorking = isServiceWorking
+                )
             }
         }
     }

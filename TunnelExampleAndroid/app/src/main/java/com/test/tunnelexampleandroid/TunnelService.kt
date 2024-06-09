@@ -2,14 +2,12 @@ package com.test.tunnelexampleandroid
 
 import android.content.Intent
 import android.net.VpnService
-import android.os.Handler
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import java.net.DatagramSocket
 import java.net.Inet4Address
-import android.os.Looper
 
-class MyVpnService: VpnService() {
+class TunnelService: VpnService() {
     companion object {
         val ACTION_START = "START"
         val ACTION_STOP = "STOP"
